@@ -1,1 +1,65 @@
-djdhskjcjbfdcxvc
+fdbk=[]
+actual_sent=[]
+pred_sent=[]
+pred_emo=[]
+svc=[]
+acc=[]
+vin=[]
+rspns=[]
+final=pd.DataFrame()
+
+for i in range(100):
+    Cust_feedbck=df['Feedback'][i]
+    fdbk.append(Cust_feedbck)
+    actual_sent.append(df['Sentiment'][i])
+    vin.append(df['VIN'][i])
+    prompt = f"""
+    We are a car service center. We perform  9 different car services :
+    Oil Change,\
+    Brakes Repair,\ 
+    Tire Pressure Check,\ 
+    Wiper Service,\ 
+    Air Filter service,\ 
+    Battery Check,\ 
+    Body Paintingservice,\ 
+    Body Denting Serive\
+    and\
+    Engine Service.
+
+    We took some feedbacks from our customers, who picked their repaired vehicle.\
+    I want to know the sentiments, emotions and topics the customers are talking.\
+    Sentiments of the customer can be 'Positive', 'Negative' or 'Neutral'.\
+
+    Provide me the one word answer of the following questions:
+    1 What is the sentiment of the customer feedback? The output can only be one from these 3 words: 'Positive', 'Negative' or 'Neutral'. 
+    2 what is the emotion of the following customer feedback? The output should strictly be in one word.
+    3 what are the 2 most frequent topics in the customer feedback? The output topics should be comma separated.
+    
+    The customer feedback is delimited with triple backticks.
+
+    Feedback text: '''{Cust_feedbck}'''
+
+    """
+    response = get_completion(prompt)
+    res=response.split()
+    pred_sent.append(res[1])
+    pred_emo.append(res[3])
+    svc.append(str(res[5:]))
+    rspns.append(response)
+
+for i in range(len(actual_sent)):
+    if actual_sent[i]==pred_sent[i]:
+        acc.append(1)
+    else:
+        acc.append(0)
+final['fdbk']=fdbk
+final['actual_sentiment']=actual_sent
+final['pred_sent']=pred_sent
+final['pred_emotion']=pred_emo
+final['service']=svc
+final['accuracy']=acc
+final['VIN']=vin
+final['row_output']=rspns
+print("Accuracy is: ",sum(acc)/len(acc)*100)
+
+
